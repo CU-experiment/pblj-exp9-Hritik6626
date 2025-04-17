@@ -1,0 +1,477 @@
+Easy
+Create a simple Spring application that demonstrates Dependency Injection (DI) using Java-based configuration instead of XML.
+Define a Student class that depends on a Course class. Use Spring’s @Configuration and @Bean annotations to inject dependencies.
+
+package com.example.springdi;
+
+public class Course {
+    private String courseName;
+    private int duration; // in weeks
+
+    public Course(String courseName, int duration) {
+        this.courseName = courseName;
+        this.duration = duration;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "courseName='" + courseName + '\'' +
+                ", duration=" + duration + " weeks" +
+                '}';
+    }
+}
+package com.example.springdi;
+
+public class Student {
+    private String name;
+    private Course course;
+
+    public Student(String name, Course course) {
+        this.name = name;
+        this.course = course;
+    }
+
+    public void displayStudentInfo() {
+        System.out.println("Student Name: " + name);
+        System.out.println("Enrolled in: " + course);
+    }
+}
+package com.example.springdi;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public Course course() {
+        return new Course("Spring Framework", 6);
+    }
+
+    @Bean
+    public Student student() {
+        return new Student("Hritik", course());
+    }
+}
+package com.example.springdi;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class MainApp {
+    public static void main(String[] args) {
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        Student student = context.getBean(Student.class);
+        student.displayStudentInfo();
+    }
+}
+
+
+
+Medium Level:
+Develop a Hibernate-based application to perform CRUD (Create, Read, Update, Delete) operations on a Student entity using Hibernate ORM with MySQL.
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/your_database_name</property>
+        <property name="hibernate.connection.username">your_username</property>
+        <property name="hibernate.connection.password">your_password</property>
+
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">1</property>
+
+        <!-- SQL dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+
+        <!-- Automatically creates or updates tables -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- Entity Mapping -->
+        <mapping class="com.example.hibernatecrud.Student"/>
+    </session-factory>
+</hibernate-configuration>
+package com.example.hibernatecrud;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "students")
+public class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "age")
+    private int age;
+
+    public Student() {}
+
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    // Getters and setters
+
+    public int getId() { return id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+
+    @Override
+    public String toString() {
+        return "Student{id=" + id + ", name='" + name + "', age=" + age + '}';
+    }
+}
+package com.example.hibernatecrud;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class StudentDao {
+    private static SessionFactory factory;
+
+    static {
+        try {
+            factory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        } catch (Throwable ex) {
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public void createStudent(Student student) {
+        Session session = factory.openSession();
+        session.beginTransaction();
+        session.save(student);
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    public Student readStudent(int id) {
+        Session session = factory.openSession();
+        Student student = session.get(Student.class, id);
+        session.close();
+        return student;
+    }
+
+    public void updateStudent(int id, String newName, int newAge) {
+        Session session = factory.openSession();
+        session.beginTransaction();
+        Student student = session.get
+package com.example.hibernatecrud;
+
+public class MainApp {
+    public static void main(String[] args) {
+        StudentDao dao = new StudentDao();
+
+        // Create
+        Student student = new Student("Hritik", 22);
+        dao.createStudent(student);
+
+        // Read
+        Student s = dao.readStudent(student.getId());
+        System.out.println("Read: " + s);
+
+        // Update
+        dao.updateStudent(student.getId(), "Hritik Kumar", 23);
+        System.out.println("After Update: " + dao.readStudent(student.getId()));
+
+        // Delete
+        dao.deleteStudent(student.getId());
+        System.out.println("Deleted student with ID: " + student.getId());
+
+        dao.close();
+    }
+}
+<dependencies>
+    <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>6.1.7.Final</version>
+    </dependency>
+    <dependency>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>8.0.33</version>
+    </dependency>
+    <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>3.1.0</version>
+    </dependency>
+</dependencies>
+
+
+Hard Level:
+Develop a Spring-based application integrated with Hibernate to manage transactions. 
+Create a banking system where users can transfer money between accounts, ensuring transaction consistency.
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/bankdb</property>
+        <property name="hibernate.connection.username">your_user</property>
+        <property name="hibernate.connection.password">your_pass</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="show_sql">true</property>
+
+        <mapping class="com.example.banking.entity.Account"/>
+        <mapping class="com.example.banking.entity.Transaction"/>
+    </session-factory>
+</hibernate-configuration>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:component-scan base-package="com.example.banking" />
+
+    <bean id="sessionFactory"
+          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
+package com.example.banking.entity;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "accounts")
+public class Account {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    private String owner;
+    private double balance;
+
+    // Constructors, getters, setters
+
+    public Account() {}
+
+    public Account(String owner, double balance) {
+        this.owner = owner;
+        this.balance = balance;
+    }
+
+    public int getId() { return id; }
+    public String getOwner() { return owner; }
+    public double getBalance() { return balance; }
+
+    public void setOwner(String owner) { this.owner = owner; }
+    public void setBalance(double balance) { this.balance = balance; }
+
+    @Override
+    public String toString() {
+        return "Account{id=" + id + ", owner='" + owner + "', balance=" + balance + '}';
+    }
+}
+package com.example.banking.entity;
+
+import jakarta.persistence.*;
+import java.util.Date;
+
+@Entity
+@Table(name = "transactions")
+public class Transaction {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    private int fromAccountId;
+    private int toAccountId;
+    private double amount;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date date;
+
+    public Transaction() {}
+
+    public Transaction(int from, int to, double amount) {
+        this.fromAccountId = from;
+        this.toAccountId = to;
+        this.amount = amount;
+        this.date = new Date();
+    }
+
+    // Getters and setters
+}
+package com.example.banking.dao;
+
+import com.example.banking.entity.Account;
+import com.example.banking.entity.Transaction;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class BankingDao {
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    public Account getAccount(int id) {
+        return sessionFactory.getCurrentSession().get(Account.class, id);
+    }
+
+    public void updateAccount(Account account) {
+        sessionFactory.getCurrentSession().update(account);
+    }
+
+    public void saveTransaction(Transaction txn) {
+        sessionFactory.getCurrentSession().persist(txn);
+    }
+}
+package com.example.banking.service;
+
+import com.example.banking.dao.BankingDao;
+import com.example.banking.entity.Account;
+import com.example.banking.entity.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class BankingService {
+
+    @Autowired
+    private BankingDao dao;
+
+    @Transactional
+    public void transfer(int fromId, int toId, double amount) {
+        Account from = dao.getAccount(fromId);
+        Account to = dao.getAccount(toId);
+
+        if (from == null || to == null) throw new RuntimeException("Account not found");
+
+        if (from.getBalance() < amount) {
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        from.setBalance(from.getBalance() - amount);
+        to.setBalance(to.getBalance() + amount);
+
+        dao.updateAccount(from);
+        dao.updateAccount(to);
+
+        Transaction txn = new Transaction(fromId, toId, amount);
+        dao.saveTransaction(txn);
+
+        System.out.println("Transaction completed successfully");
+    }
+}
+package com.example.banking;
+
+import com.example.banking.entity.Account;
+import com.example.banking.service.BankingService;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class App {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        BankingService service = context.getBean(BankingService.class);
+        SessionFactory sessionFactory = context.getBean(SessionFactory.class);
+
+        // Create initial accounts (optional)
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.save(new Account("Alice", 5000));
+        session.save(new Account("Bob", 3000));
+        session.getTransaction().commit();
+        session.close();
+
+        // Successful Transaction
+        try {
+            service.transfer(1, 2, 1000);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        // Failed Transaction (Insufficient Balance)
+        try {
+            service.transfer(1, 2, 10000); // should fail
+        } catch (Exception e) {
+            System.out.println("Rollback happened due to error: " + e.getMessage());
+        }
+    }
+}
+<dependencies>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>6.1.4</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-orm</artifactId>
+        <version>6.1.4</version>
+    </dependency>
+    <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>6.1.7.Final</version>
+    </dependency>
+    <dependency>
+        <groupId>com.mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <version>8.0.33</version>
+    </dependency>
+    <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>3.1.0</version>
+    </dependency>
+</dependencies>
+
+
+
+
+
+
